@@ -14,7 +14,7 @@ app.listen(3001, function () {
 
 var userInfo = "응답없음";
 
-const kakaoLogin = async (req, res) => {
+const kakaoLogin = async (req, response) => {
   const grant_type = req.body.grant_type;
   const client_id = req.body.client_id;
   const redirect_uri = req.body.redirect_uri;
@@ -22,7 +22,7 @@ const kakaoLogin = async (req, res) => {
   const url = `https://kauth.kakao.com/oauth/token?grant_type=${grant_type}&client_id=${client_id}&redirect_uri=${redirect_uri}&code=${KAKAO_CODE}`;
 
   try {
-    const response = await axios
+    await axios
       .post(url, {
         headers: { "Content-type": "application/x-www-form-urlencoded" },
       })
@@ -37,6 +37,7 @@ const kakaoLogin = async (req, res) => {
           })
           .then((res) => {
             userInfo = res.data.properties;
+            response.send(userInfo);
             return userInfo;
           });
       });
@@ -53,8 +54,4 @@ app.get("/", (req, res) => {
 app.post("/user", async (req, res) => {
   console.log(req.body.authorizationCode);
   await kakaoLogin(req, res);
-  setTimeout(() => {
-    console.log(userInfo);
-    res.send(userInfo);
-  }, 100);
 });
